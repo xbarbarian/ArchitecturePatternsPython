@@ -3,7 +3,7 @@ from os import path
 
 from .content_types import CONTENT_TYPES_MAP
 from .requests import GetRequests
-
+from pprint import pprint
 
 class PageNotFound404:
     def __call__(self,request):
@@ -21,7 +21,7 @@ class FrameWork:
     def __call__(self, environ, start_response):
         # Получаем адрес, по которому пользователь выполнил переход
         path = environ['PATH_INFO']
-
+        pprint(environ)
         # Добавляем закрывающий слеш
         if not path.endswith('/'):
             path = f'{path}/'

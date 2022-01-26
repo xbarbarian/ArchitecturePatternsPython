@@ -6,6 +6,7 @@ from FunnyBag.main import FrameWork
 import config
 from views import routes
 import logging
+
 # Создаем объект WSGI-приложения
 application = FrameWork(config, routes)
 
