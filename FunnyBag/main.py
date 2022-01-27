@@ -2,7 +2,7 @@ import quopri
 from os import path
 
 from .content_types import CONTENT_TYPES_MAP
-from .requests import GetRequests
+from .requests import GetRequests, PostRequests
 from pprint import pprint
 
 class PageNotFound404:
@@ -30,6 +30,11 @@ class FrameWork:
         # Получаем все данные запроса
         method = environ['REQUEST_METHOD']
         request['method'] = method
+
+        if method == 'POST':
+            data = PostRequests().get_wsgi_input_data(environ)
+            data = PostRequests().parse_wsgi_input_data(data)
+            print(f'Нам пришёл post-запрос: {data}')
 
         if method == 'GET':
             request_params = GetRequests().get_request_params(environ)
