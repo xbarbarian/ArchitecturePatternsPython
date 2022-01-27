@@ -6,11 +6,12 @@ from FunnyBag.main import FrameWork
 import config
 from views import routes
 import logging
+
 # Создаем объект WSGI-приложения
 application = FrameWork(config, routes)
 
 logger = logging.getLogger('waitress')
 logger.setLevel(logging.INFO)
 
-serve(application, listen='*:8080')
+serve(application, listen='127.0.0.1:8080')
 
