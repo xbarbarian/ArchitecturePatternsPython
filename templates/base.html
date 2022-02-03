@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<meta charset="utf-8" />
+ <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+<html lang="en">
+<head>
+    {% block head %}
+    <link rel="stylesheet" href="{{ static }}css/style.css">
+    <title>{% block title %}{% endblock %} - My Webpage</title>
+    {% endblock %}
+</head>
+{% block menu %}
+<header>
+    <nav>
+        <ul>
+            <li><a href="/about/">About Page</a></li>
+            <li><a href="/contacts/">Contacts Page</a></li>
+            <li>Link3</li>
+            <li>Link4</li>
+        </ul>
+
+    </nav>
+</header>
+{% endblock %}
+
+<body>
+    <div id="content">
+        {% block content %}
+        {% endblock %}
+    </div>
+
+    {% block footer %}
+        <footer>
+            &copy; Main Page.
+        </footer>
+    {% endblock %}
+</body>
+</html>

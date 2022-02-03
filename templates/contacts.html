@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block content %}
+<form name="Contacts" method="post" action="">
+    <p><b>Тема:</b><br>
+        <input type="text" size="40">
+    </p>
+    <p><b>Сообщение:</b><br>
+        <input type="text" size="200">
+    </p>
+    <p><b>Ваш Email:</b><br>
+        <input type="email" size="40">
+    </p>
+    <button>Отправить</button>
+</form>
+{% endblock %}
+
+{% block footer %}
+<footer>
+    &copy; Contacts Page.
+</footer>
+{% endblock %}
