@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block main_block %}
+    <div id="">
+        <div class="container-fluid">
+            <h1 class="mt-4">Курсы</h1>
+            <div class="modal fade" id="Category_create" tabindex="-1" role="dialog"
+                 aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalLongTitle">Добавить Курс</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <form action="/course-list/" method="post">
+                                <div class="form-group">
+                                    <label for="name">Наименование:</label>
+                                    <input type="hidden" name="method" value="create">
+                                    <input type="text" name="name" class="form-control" id="name" placeholder="Name">
+                                </div>
+                                <div class="form-group">
+                                    <select name="type_course" class="form-control" multiple="multiple">
+                                        {#                                            class="form-control"  id="example-getting-started" size="5" multiple>#}
+                                        {% for type_course in objects_list_type_course %}
+                                            <option value="{{ type_course.id }}">{{ type_course.name }}</option>
+                                            {#                                        <option selected value="{{ type_course.id }}">{{ type_course.name }}</option>#}
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="submit" class="btn btn-primary">Создать</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="fas fa-table mr-1"></i>
+                    Список курсов
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                            <thead>
+                            <tr>
+                                <th>Ид</th>
+                                <th>Наименование</th>
+                                <th>Тип курса</th>
+                                <th>Скопировать</th>
+                                <th>Изменить</th>
+                                <th>Удалить</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for course in objects_list %}
+                                <tr>
+                                    <td>{{ course.id }}</td>
+                                    <td>{{ course.name }}</td>
+                                    <td>
+                                        {#{% for list_cource in course.type %}#}
+                                        {% for i in course.type %}
+                                            {% if course.type|length > 1 %}
+                                                {% if i == course.type|last %}
+                                                    {{ i.name }}
+                                                {% else %}
+                                                    {{ i.name }} |
+                                                {% endif %}
+                                            {% else %}
+                                                {{ i.name }}
+                                            {% endif %}
+                                            {#                                        {% endfor %}#}
+                                        {% endfor %}
+                                    </td>
+                                    <td>
+                                        <form action="#" method="post">
+                                            <input class="btn btn-danger btn-block" type="submit" value="Не работате">
+                                        </form>
+                                    </td>
+
+                                    <td>
+                                        <form action="">
+                                            <input class="btn btn-success btn-block" type="submit" value="Не работате">
+                                        </form>
+                                    </td>
+                                    <td>
+                                        <form action="/course-list/" method="post">
+                                            <input type="hidden" name="method" value="delete">
+                                            <input type="hidden" name="id" value="{{ course.id }}">
+                                            <input class="btn btn-danger btn-block" type="submit" value="Удалить">
+                                        </form>
+
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <button type="button" class="btn btn-success" data-toggle="modal" data-target="#Category_create">
+                        Добавить курс
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

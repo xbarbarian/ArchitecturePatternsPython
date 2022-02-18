@@ -2,6 +2,7 @@
 from FunnyBag.templator import render
 from FunnyBag.decorators import AppRoute
 
+
 routes = {}
 
 
@@ -17,7 +18,22 @@ class About:
         return '200 OK', render('about.html')
 
 
-@AppRoute(routes=routes, url='/contacts/')
-class Contacts:
+#LIST
+
+# Класс-контроллер - Страница "Список категорий"
+@AppRoute(routes=routes, url='/category-list/')
+class CategoryList:
+
     def __call__(self, request):
-        return '200 OK', render('contacts.html')
+        logger.log('Получаем список категорий "В РАЗРАБОТКЕ"')
+        return '200 OK', render('category.html',
+                                objects_list=site.categories)
+
+# Класс-контроллер - Страница "Список учителей"
+@AppRoute(routes=routes, url='/teacher-list/')
+class TeachersList:
+
+    def __call__(self, request):
+        logger.log('Получаем список учителей')
+        return '200 OK', render('teachers.html',
+                                objects_list=site.teachers)
