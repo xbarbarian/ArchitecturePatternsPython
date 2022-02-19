@@ -9,7 +9,7 @@ logger = Logger('main')
 
 
 class PageNotFound404:
-    def __call__(self,request):
+    def __call__(self, request):
         return '404 WHAT', '404 PAGE Not Found'
 
 
@@ -96,7 +96,7 @@ class Framework:
     def decode_value(data):
         new_data = {}
         for k, v in data.items():
-            #Обрабатываем списки пока
+            # Обрабатываем списки пока
             if type(v) == list:
                 val = ','.join(v)
             else:
@@ -104,3 +104,33 @@ class Framework:
             val_decode_str = quopri.decodestring(val).decode('UTF-8')
             new_data[k] = val_decode_str
         return new_data
+
+
+# Новый вид WSGI-application.
+# Первый — логирующий (такой же, как основной,
+# только для каждого запроса выводит информацию
+# (тип запроса и параметры) в консоль.
+class DebugApplication(Framework):
+
+    def __init__(self, routes_obj, fronts_obj):
+        self.application = Framework(routes_obj, fronts_obj)
+        super().__init__(routes_obj, fronts_obj)
+
+    def __call__(self, env, start_response):
+        print('DEBUG MODE')
+        print(env)
+        return self.application(env, start_response)
+
+
+# Новый вид WSGI-application.
+# Второй — фейковый (на все запросы пользователя отвечает:
+# 200 OK, Hello from Fake).
+class FakeApplication(Framework):
+
+    def __init__(self, routes_obj, fronts_obj):
+        self.application = Framework(routes_obj, fronts_obj)
+        super().__init__(routes_obj, fronts_obj)
+
+    def __call__(self, env, start_response):
+        start_response('200 OK', [('Content-Type', 'text/html')])
+        return [b'Hello from Fake']

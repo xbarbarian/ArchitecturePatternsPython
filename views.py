@@ -1,6 +1,6 @@
 """Модуль, содержащий контроллеры веб-приложения"""
 from FunnyBag.templator import render
-from FunnyBag.decorators import AppRoute
+from FunnyBag.decorators import AppRoute, Debug
 from FunnyBag.model import Engine, Logger
 from FunnyBag.test_data import add_test_data_course, add_test_data_type_course
 
@@ -16,7 +16,8 @@ add_test_data_course(site)
 # Класс-контроллер - Страница "главная страница"
 @AppRoute(routes=routes, url='/')
 class Index:
-    def __call__(self, request):
+    @Debug(name="Index")
+    def __call__(self,request):
         logger.log('Вход на главную страницу')
         return '200 OK', render('schedule.html')
 
@@ -24,7 +25,8 @@ class Index:
 # Класс-контроллер - Страница "о компании"
 @AppRoute(routes=routes, url='/about/')
 class About:
-    def __call__(self, request):
+    @Debug(name="About")
+    def __call__(self,request):
         logger.log('Вход на страницу о компании')
         return '200 OK', render('about.html')
 
@@ -32,7 +34,8 @@ class About:
 # Класс-контроллер - Страница "обратная связь"
 @AppRoute(routes=routes, url='/feedback/')
 class Feedback:
-    def __call__(self, request):
+    @Debug(name="Feedback")
+    def __call__(self,request):
         logger.log('Вход на страницу обратная связь')
         return '200 OK', render('feedback.html')
 
@@ -42,7 +45,7 @@ class Feedback:
 # Класс-контроллер - Страница "Список категорий"
 @AppRoute(routes=routes, url='/category-list/')
 class CategoryList:
-
+    @Debug(name="CategoryList")
     def __call__(self, request):
         logger.log('Получаем список категорий "В РАЗРАБОТКЕ"')
         return '200 OK', render('category.html',
@@ -52,7 +55,7 @@ class CategoryList:
 # Класс-контроллер - Страница "Список учителей"
 @AppRoute(routes=routes, url='/teacher-list/')
 class TeachersList:
-
+    @Debug(name="TeachersList")
     def __call__(self, request):
         logger.log('Получаем список учителей')
         return '200 OK', render('teachers.html',
@@ -62,17 +65,17 @@ class TeachersList:
 # Класс-контроллер - Страница "Список студентов"
 @AppRoute(routes=routes, url='/student-list/')
 class StudentsList:
-    logger.log('Получаем список студентов')
-
+    @Debug(name="StudentsList")
     def __call__(self, request):
-        return '200 OK', render('students.html',
+        logger.log('Получаем список студентов')
+        return '200 OK', render('teachers.html',
                                 objects_list=site.students)
 
 
 # Класс-контроллер - "Создание типов обучения"
 @AppRoute(routes=routes, url='/type-course-list/')
 class TypeCourses:
-
+    @Debug(name="CoursesList-create-update-delete-detail")
     def __call__(self, request):
         method = request['method'].upper()
         if method == 'CREATE':
@@ -115,7 +118,8 @@ class TypeCourses:
 
 @AppRoute(routes=routes, url='/course-list/')
 class Courses:
-
+    @Debug(name="Courses-create-update-delete-detail")
+    @Debug(name="TypeCoursesList")
     def __call__(self, request):
         method = request['method'].upper()
         if method == 'CREATE':
