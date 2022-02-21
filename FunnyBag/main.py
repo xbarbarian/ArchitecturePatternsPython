@@ -60,7 +60,7 @@ class Framework:
 
         elif '/api/'.find(path) == 0:
             view = self.routes_lst['/api/']
-            request['path'] =path
+            request['path'] = path
             content_type = self.get_content_type(path)
             code, body = view(request)
             body = body.encode('utf-8')
@@ -104,7 +104,7 @@ class Framework:
         new_data = {}
         for k, v in data.items():
             # Обрабатываем списки пока
-            if type(v) == list:
+            if isinstance(v, list):
                 val = ','.join(v)
             else:
                 val = bytes(v.replace('%', '=').replace("+", " "), 'UTF-8')
