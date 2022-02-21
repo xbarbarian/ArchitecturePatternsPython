@@ -58,6 +58,13 @@ class Framework:
             code, body = view(request)
             body = body.encode('utf-8')
 
+        elif '/api/'.find(path) == 0:
+            view = self.routes_lst['/api/']
+            request['path'] =path
+            content_type = self.get_content_type(path)
+            code, body = view(request)
+            body = body.encode('utf-8')
+
         elif path.startswith(self.settings.STATIC_URL):
             # /static/images/logo.jpg/ -> images/logo.jpg
             file_path = path[len(self.settings.STATIC_URL):len(path) - 1]

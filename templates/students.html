@@ -9,7 +9,8 @@
 
 
             <!-- Modal -->
-            <div class="modal fade" id="Category_create" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+            <div class="modal fade" id="Category_create" tabindex="-1" role="dialog"
+                 aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
@@ -19,25 +20,47 @@
                             </button>
                         </div>
                         <div class="modal-body">
-                            <form method="post">
+                            <form action="/student-list/" method="post">
                                 <div class="form-group">
-                                    <label for="name">ФИО:</label>
-                                    <input type="text" name="name" class="form-control" id="name" placeholder="Name">
+                                    <label for="name">Имя:</label>
+                                    <input type="hidden" name="method" value="create">
+                                    <input type="text" name="first_name" class="form-control" id="first_name"
+                                           placeholder="Иван">
+                                </div>
+                                <div class="form-group">
+                                    <label for="name">Фамилия:</label>
+                                    <input type="text" name="last_name" class="form-control" id="last_name"
+                                           placeholder="Иванов">
+                                </div>
+                                <div class="form-group">
+                                    <label for="name">Возраст:</label>
+                                    <input type="text" name="age" class="form-control" id="age"
+                                           placeholder="99">
+                                </div>
+                                <div class="form-group">
+                                    <label for="name">Емайл:</label>
+                                    <input type="email" name="email" class="form-control" id="email"
+                                           placeholder="test@test.ru">
+                                </div>
+                                <div class="form-group">
+                                    <label for="name">Телефон:</label>
+                                    <input type="number" name="phone" class="form-control" id="phone"
+                                           placeholder="+79999999999">
                                 </div>
                                 <div class="form-group">
 
-                                    <select name="course"  class="form-control" multiple>
+                                    <select name="course" class="form-control" multiple>
                                         {% for course in list_course %}
-{#                                        <option selected value="s1">Чебурашка</option>#}
-                                        <option value="{{ course.id }}">{{ course.name }}</option>
-{#                                        <option value="s3">Шапокляк</option>#}
-{#                                        <option value="s4">Крыса Лариса</option>#}
+                                            {#                                        <option selected value="s1">Чебурашка</option>#}
+                                            <option value="{{ course.id }}">{{ course.name }}</option>
+                                            {#                                        <option value="s3">Шапокляк</option>#}
+                                            {#                                        <option value="s4">Крыса Лариса</option>#}
                                         {% endfor %}
-                                   </select>
+                                    </select>
 
 
-{#                                    <label for="email1">Курсы</label>#}
-{#                                    <input type="email" name="email" class="form-control" id="email1" placeholder="Email">#}
+                                    {#                                    <label for="email1">Курсы</label>#}
+                                    {#                                    <input type="email" name="email" class="form-control" id="email1" placeholder="Email">#}
                                 </div>
                                 <div class="modal-footer">
                                     <button type="submit" class="btn btn-primary">Создать</button>
@@ -66,24 +89,46 @@
                             </tr>
                             </thead>
                             <tbody>
-                            {% for teacher in object_list %}
+                            {% for student in objects_list %}
                                 <tr>
-                                    <td>{{ teacher.id }}</td>
-                                    <td>{{ teacher.name }}</td>
-                                    <td>{{ category.courses }}</td>
+                                    <td>{{ student.id }}</td>
+                                    <td>{{ student.first_name }}  {{ student.last_name }}</td>
+                                    <td> {% for course in student.course %}
+                                        {% for i in list_course %}
+                                            {% if course == i.id %}
+
+                                                {% if student.course|length > 1 %}
+                                                    {% if course == student.course|last %}
+                                                        {{ i.name }}
+                                                    {% else %}
+                                                        {{ i.name }} |
+                                                    {% endif %}
+                                                {% else %}
+                                                    {{ i.name }}
+                                                {% endif %}
+
+{#                                                {{ i.name }}#}
+                                            {% endif %}
+                                        {% endfor %}
+
+                                    {% endfor %}
+
+                                    </td>
                                     <td>
                                         <form action="#" method="post">
-                                            <input class="btn btn-danger btn-block" type="submit" value="Скопировать">
+                                            <input class="btn btn-danger btn-block" type="submit" value="Не работает">
                                         </form>
                                     </td>
 
                                     <td>
                                         <form action="">
-                                            <input class="btn btn-success btn-block" type="submit" value="Изменить">
+                                            <input class="btn btn-success btn-block" type="submit" value="Не работате">
                                         </form>
                                     </td>
                                     <td>
-                                        <form action="#" method="post">
+                                        <form action="/student-list/" method="post">
+                                             <input type="hidden" name="method" value="delete">
+                                            <input type="hidden" name="id" value="{{ student.id }}">
                                             <input class="btn btn-danger btn-block" type="submit" value="Удалить">
                                         </form>
                                     </td>

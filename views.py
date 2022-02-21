@@ -1,23 +1,30 @@
 """Модуль, содержащий контроллеры веб-приложения"""
+import json
+from jinja2 import Template, Environment, FileSystemLoader
+from FunnyBag.notification import EmailNotifier, SmsNotifier, BaseSerializer
+from FunnyBag.main import PageNotFound404
 from FunnyBag.templator import render
 from FunnyBag.decorators import AppRoute, Debug
 from FunnyBag.model import Engine, Logger
-from FunnyBag.test_data import add_test_data_course, add_test_data_type_course
+from FunnyBag.test_data import add_test_data_course, add_test_data_type_course, add_test_data_student
 
 logger = Logger('views')
 site = Engine()
+email_notifier = EmailNotifier()
+sms_notifier = SmsNotifier()
 routes = {}
 
 # Test_data
 add_test_data_type_course(site)
 add_test_data_course(site)
+add_test_data_student(site)
 
 
 # Класс-контроллер - Страница "главная страница"
 @AppRoute(routes=routes, url='/')
 class Index:
     @Debug(name="Index")
-    def __call__(self,request):
+    def __call__(self, request):
         logger.log('Вход на главную страницу')
         return '200 OK', render('schedule.html')
 
@@ -26,7 +33,7 @@ class Index:
 @AppRoute(routes=routes, url='/about/')
 class About:
     @Debug(name="About")
-    def __call__(self,request):
+    def __call__(self, request):
         logger.log('Вход на страницу о компании')
         return '200 OK', render('about.html')
 
@@ -35,7 +42,7 @@ class About:
 @AppRoute(routes=routes, url='/feedback/')
 class Feedback:
     @Debug(name="Feedback")
-    def __call__(self,request):
+    def __call__(self, request):
         logger.log('Вход на страницу обратная связь')
         return '200 OK', render('feedback.html')
 
@@ -50,26 +57,6 @@ class CategoryList:
         logger.log('Получаем список категорий "В РАЗРАБОТКЕ"')
         return '200 OK', render('category.html',
                                 objects_list=site.categories)
-
-
-# Класс-контроллер - Страница "Список учителей"
-@AppRoute(routes=routes, url='/teacher-list/')
-class TeachersList:
-    @Debug(name="TeachersList")
-    def __call__(self, request):
-        logger.log('Получаем список учителей')
-        return '200 OK', render('teachers.html',
-                                objects_list=site.teachers)
-
-
-# Класс-контроллер - Страница "Список студентов"
-@AppRoute(routes=routes, url='/student-list/')
-class StudentsList:
-    @Debug(name="StudentsList")
-    def __call__(self, request):
-        logger.log('Получаем список студентов')
-        return '200 OK', render('teachers.html',
-                                objects_list=site.students)
 
 
 # Класс-контроллер - "Создание типов обучения"
@@ -99,7 +86,7 @@ class TypeCourses:
             logger.log('Обновление типов обучения')
             id = int(request['data']['id'])
             name = request['data']['name']
-            result = site.type_course_update(id, name)
+            result = site.type_course_update(id,name)
             return '200 OK', render('type_courses.html',
                                     objects_list=result)
 
@@ -131,9 +118,13 @@ class Courses:
                 list_type_course.append(site.find_type_course_by_id(int(i)))
             name = site.decode_value(name)
             new_type = site.create_course(name, list_type_course)
+            # Добавляем наблюдателей на курс
+           # new_type.observers.append(email_notifier)
+
             site.courses.append(new_type)
             return '200 OK', render('courses.html',
                                     objects_list=site.courses, objects_list_type_course=site.type_courses)
+
 
         elif method == 'DELETE':
             logger.log('Удаление обучения')
@@ -161,6 +152,116 @@ class Courses:
             logger.log('Список курсов')
             return '200 OK', render('courses.html',
                                     objects_list=site.courses, objects_list_type_course=site.type_courses)
+
+
+# Класс-контроллер - Страница "Список студентов"
+@AppRoute(routes=routes, url='/student-list/')
+class Students:
+    @Debug(name="Students-create-update-delete-detail")
+    @Debug(name="StudentsList")
+    def __call__(self, request):
+        method = request['method'].upper()
+        if method == 'CREATE':
+            logger.log('Добавить ученика')
+            data = request['data']
+            for k, v in data.items():
+                data[k] = site.decode_value(v)
+
+            student = site.create_user('student', data)
+            # Добавляем наблюдателей на курс
+            student.observers.append(email_notifier)
+            site.students.append(student)
+            student.add_student(site)
+
+            return '200 OK', render('students.html',
+                                    objects_list=site.students, list_course=site.courses)
+
+        elif method == 'DELETE':
+            logger.log('Удаление обучения')
+            id = int(request['data']['id'])
+            result = site.delete_student(id)
+            return '200 OK', render('students.html',
+                                    objects_list=site.students, list_course=site.courses)
+
+        # elif method == 'UPDATE':
+        #     logger.log('Обновление обучения')
+        #     id = int(request['data']['id'])
+        #     name = request['data']['name']
+        #     result = site.type_course_update(id,name)
+        #     return '200 OK', render('type_courses.html',
+        #                             objects_list=result)
+        #
+        # elif method == 'DETAIL':
+        #     logger.log('Детализация  обучения')
+        #     id = int(request['data']['id'])
+        #     result = site.type_course_detail(id)
+        #     return '200 OK', render('include/update_course_type.html',
+        #                             id=result.id,
+        #                                name=result.name)
+        elif method == 'GET':
+            logger.log('Получаем список студентов')
+            return '200 OK', render('students.html',
+                                    objects_list=site.students, list_course=site.courses)
+
+
+# Класс-контроллер - Страница "Список учителей"
+@AppRoute(routes=routes, url='/teacher-list/')
+class Teachers:
+    @Debug(name="Teachers-create-update-delete-detail")
+    @Debug(name="TeachersList")
+    def __call__(self, request):
+        method = request['method'].upper()
+        if method == 'CREATE':
+            logger.log('Создание обучения')
+            name = request['data']['name']
+            type_course = request['data']['type_course']
+            list_type_course = []
+            for i in type_course:
+                list_type_course.append(site.find_type_course_by_id(int(i)))
+            name = site.decode_value(name)
+            new_type = site.create_course(name, list_type_course)
+            # Добавляем наблюдателей на курс
+            new_type.observers.append(email_notifier)
+
+            site.courses.append(new_type)
+            return '200 OK', render('courses.html',
+                                    objects_list=site.courses, objects_list_type_course=site.type_courses)
+
+
+        elif method == 'DELETE':
+            logger.log('Удаление обучения')
+            id = int(request['data']['id'])
+            result = site.delete_course(id)
+            return '200 OK', render('courses.html',
+                                    objects_list=result)
+
+        # elif method == 'UPDATE':
+        #     logger.log('Обновление обучения')
+        #     id = int(request['data']['id'])
+        #     name = request['data']['name']
+        #     result = site.type_course_update(id,name)
+        #     return '200 OK', render('type_courses.html',
+        #                             objects_list=result)
+        #
+        # elif method == 'DETAIL':
+        #     logger.log('Детализация  обучения')
+        #     id = int(request['data']['id'])
+        #     result = site.type_course_detail(id)
+        #     return '200 OK', render('include/update_course_type.html',
+        #                             id=result.id,
+        #                                name=result.name)
+        elif method == 'GET':
+            logger.log('Получаем список учителей')
+            return '200 OK', render('teachers.html',
+                                    objects_list=site.teachers)
+
+
+# контроллер 404
+class NotFound404:
+    @Debug(name='NotFound404')
+    def __call__(self, request):
+        return '404 WHAT', '404 PAGE Not Found'
+
 
 # # Класс-контроллер - "Создание Курсов"
 # @AppRoute(routes=routes, url='/course-create/')
@@ -202,8 +303,17 @@ class Courses:
 #         return '200 OK', render('category.html',
 #                                     categories=site.categories)
 
-# UPDATE
-
-# DELETE
-
-# COPY
+# API(Доделать интерфейс) для разных api
+# http://127.0.0.1:8080/api/course
+@AppRoute(routes=routes, url='/api/')
+class CourseApi:
+    @Debug(name='CourseApi')
+    def __call__(self, request):
+        path = request.get('path')
+        if path:
+            try:
+                return '200 OK', BaseSerializer(site.__dict__.get(path.split('/')[2])).save()
+            except:
+                return '200 OK', BaseSerializer("not").save()
+        else:
+            return '200 OK', BaseSerializer(site.courses).save()
